@@ -15,10 +15,13 @@ function createAuth() {
 		);
 	}
 
-	const redis = new Redis({
-		url: webEnv.UPSTASH_REDIS_REST_URL,
-		token: webEnv.UPSTASH_REDIS_REST_TOKEN,
-	});
+	const redis =
+		webEnv.UPSTASH_REDIS_REST_URL && webEnv.UPSTASH_REDIS_REST_TOKEN
+			? new Redis({
+					url: webEnv.UPSTASH_REDIS_REST_URL,
+					token: webEnv.UPSTASH_REDIS_REST_TOKEN,
+				})
+			: null;
 
 	return betterAuth({
 		database: drizzleAdapter(db, {
@@ -34,18 +37,22 @@ function createAuth() {
 		emailAndPassword: {
 			enabled: true,
 		},
-		rateLimit: {
-			storage: "secondary-storage",
-			customStorage: {
-				get: async (key) => {
-					const value = await redis.get(key);
-					return value as RateLimit | undefined;
-				},
-				set: async (key, value) => {
-					await redis.set(key, value);
-				},
-			},
-		},
+		...(redis
+			? {
+					rateLimit: {
+						storage: "secondary-storage",
+						customStorage: {
+							get: async (key) => {
+								const value = await redis.get(key);
+								return value as RateLimit | undefined;
+							},
+							set: async (key, value) => {
+								await redis.set(key, value);
+							},
+						},
+					},
+				}
+			: {}),
 		baseURL: webEnv.NEXT_PUBLIC_SITE_URL,
 		appName: "Cutia",
 		trustedOrigins: [webEnv.NEXT_PUBLIC_SITE_URL],

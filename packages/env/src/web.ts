@@ -17,8 +17,8 @@ const webEnvSchema = z.object({
 		.optional(),
 
 	BETTER_AUTH_SECRET: z.string().optional(),
-	UPSTASH_REDIS_REST_URL: z.url(),
-	UPSTASH_REDIS_REST_TOKEN: z.string(),
+	UPSTASH_REDIS_REST_URL: z.string().optional(),
+	UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 	FREESOUND_CLIENT_ID: z.string().optional(),
 	FREESOUND_API_KEY: z.string().optional(),
 
