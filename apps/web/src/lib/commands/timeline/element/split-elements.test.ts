@@ -6,14 +6,15 @@ if (typeof globalThis.window === "undefined") {
 
 import { EditorCore } from "@/core";
 import { SplitElementsCommand } from "./split-elements";
-import type { VideoTrack, VideoElement, TProject } from "@/types/timeline";
+import type { VideoTrack, VideoElement } from "@/types/timeline";
+import type { TProject } from "@/types/project";
 
 describe("SplitElementsCommand", () => {
 	beforeEach(() => {
 		const editor = EditorCore.getInstance();
 		const mockProject: TProject = {
-			metadata: { id: "p1", name: "Project 1", createdAt: new Date(), updatedAt: new Date() },
-			settings: { width: 1920, height: 1080, fps: 30 },
+			metadata: { id: "p1", name: "Project 1", duration: 10, createdAt: new Date(), updatedAt: new Date() },
+			settings: { canvasSize: { width: 1920, height: 1080 }, fps: 30, background: { type: "color", color: "#000000" } },
 			scenes: [
 				{
 					id: "s1",
@@ -26,6 +27,7 @@ describe("SplitElementsCommand", () => {
 				},
 			],
 			currentSceneId: "s1",
+			version: 1,
 		};
 		editor.project.setActiveProject({ project: mockProject });
 		editor.scenes.initializeScenes({ scenes: mockProject.scenes, currentSceneId: "s1" });
