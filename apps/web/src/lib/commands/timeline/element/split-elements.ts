@@ -60,12 +60,36 @@ export class SplitElementsCommand extends Command {
 					const leftVisibleDuration = relativeTime;
 					const rightVisibleDuration = element.duration - relativeTime;
 
+					const rate =
+						"playbackRate" in element && typeof element.playbackRate === "number"
+							? element.playbackRate
+							: 1;
+					const isReversed =
+						"reversed" in element && typeof element.reversed === "boolean"
+							? element.reversed
+							: false;
+
+					const leftTrimStart = isReversed
+						? element.trimStart + rightVisibleDuration * rate
+						: element.trimStart;
+					const leftTrimEnd = isReversed
+						? element.trimEnd
+						: element.trimEnd + rightVisibleDuration * rate;
+
+					const rightTrimStart = isReversed
+						? element.trimStart
+						: element.trimStart + leftVisibleDuration * rate;
+					const rightTrimEnd = isReversed
+						? element.trimEnd + leftVisibleDuration * rate
+						: element.trimEnd;
+
 					if (this.retainSide === "left") {
 						return [
 							{
 								...element,
 								duration: leftVisibleDuration,
-								trimEnd: element.trimEnd + rightVisibleDuration,
+								trimStart: leftTrimStart,
+								trimEnd: leftTrimEnd,
 								name: `${element.name} (left)`,
 							},
 						];
@@ -83,7 +107,8 @@ export class SplitElementsCommand extends Command {
 								id: newId,
 								startTime: this.splitTime,
 								duration: rightVisibleDuration,
-								trimStart: element.trimStart + leftVisibleDuration,
+								trimStart: rightTrimStart,
+								trimEnd: rightTrimEnd,
 								name: `${element.name} (right)`,
 							},
 						];
@@ -100,7 +125,8 @@ export class SplitElementsCommand extends Command {
 						{
 							...element,
 							duration: leftVisibleDuration,
-							trimEnd: element.trimEnd + rightVisibleDuration,
+							trimStart: leftTrimStart,
+							trimEnd: leftTrimEnd,
 							name: `${element.name} (left)`,
 						},
 						{
@@ -108,7 +134,8 @@ export class SplitElementsCommand extends Command {
 							id: secondElementId,
 							startTime: this.splitTime,
 							duration: rightVisibleDuration,
-							trimStart: element.trimStart + leftVisibleDuration,
+							trimStart: rightTrimStart,
+							trimEnd: rightTrimEnd,
 							name: `${element.name} (right)`,
 						},
 					];
