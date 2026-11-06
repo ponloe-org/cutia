@@ -13,7 +13,7 @@ import {
 } from "./property-item";
 import { clamp } from "@/utils/math";
 import { useEditor } from "@/hooks/use-editor";
-import type { ImageElement, VideoElement } from "@/types/timeline";
+import type { ImageElement, VideoElement, VideoFilterAdjustments } from "@/types/timeline";
 import { SPEED_PRESETS, formatSpeedLabel } from "@/lib/timeline/speed-utils";
 
 export function VideoProperties({
@@ -69,6 +69,11 @@ export function VideoProperties({
 	const currentSpeed = isVideoElement
 		? (element as VideoElement).playbackRate ?? 1
 		: 1;
+	const currentAdjustments: VideoFilterAdjustments = element.adjustments ?? {};
+	const brightnessVal = currentAdjustments.brightness ?? 100;
+	const contrastVal = currentAdjustments.contrast ?? 100;
+	const saturationVal = currentAdjustments.saturation ?? 100;
+	const blurVal = currentAdjustments.blur ?? 0;
 	const speedDisplay = isEditingSpeed.current
 		? speedDraft.current
 		: formatSpeedLabel({ rate: currentSpeed });
@@ -135,6 +140,27 @@ export function VideoProperties({
 			apply(parsed);
 		}
 		initial.current = null;
+	};
+
+	const updateAdjustments = ({
+		updates,
+		pushHistory = true,
+	}: {
+		updates: Partial<VideoFilterAdjustments>;
+		pushHistory?: boolean;
+	}) => {
+		editor.timeline.updateElements({
+			updates: [
+				{
+					trackId,
+					elementId: element.id,
+					updates: {
+						adjustments: { ...currentAdjustments, ...updates },
+					},
+				},
+			],
+			pushHistory,
+		});
 	};
 
 	return (
@@ -412,6 +438,87 @@ export function VideoProperties({
 										}}
 										className="bg-accent h-7 w-14 [appearance:textfield] rounded-sm px-2 text-center !text-xs [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 									/>
+								</div>
+							</PropertyItemValue>
+						</PropertyItem>
+					</div>
+				</PropertyGroup>
+
+				{/* Color & Filter Adjustments (CapCut style) */}
+				<PropertyGroup title={t("Color Adjustments")} collapsible={false}>
+					<div className="space-y-4">
+						{/* Brightness */}
+						<PropertyItem direction="column">
+							<PropertyItemLabel>{t("Brightness")}</PropertyItemLabel>
+							<PropertyItemValue>
+								<div className="flex items-center gap-2">
+									<Slider
+										value={[brightnessVal]}
+										min={0}
+										max={200}
+										step={1}
+										onValueChange={([val]) => updateAdjustments({ updates: { brightness: val }, pushHistory: false })}
+										onValueCommit={([val]) => updateAdjustments({ updates: { brightness: val }, pushHistory: true })}
+										className="w-full"
+									/>
+									<span className="text-muted-foreground w-10 text-center text-xs">{brightnessVal}%</span>
+								</div>
+							</PropertyItemValue>
+						</PropertyItem>
+
+						{/* Contrast */}
+						<PropertyItem direction="column">
+							<PropertyItemLabel>{t("Contrast")}</PropertyItemLabel>
+							<PropertyItemValue>
+								<div className="flex items-center gap-2">
+									<Slider
+										value={[contrastVal]}
+										min={0}
+										max={200}
+										step={1}
+										onValueChange={([val]) => updateAdjustments({ updates: { contrast: val }, pushHistory: false })}
+										onValueCommit={([val]) => updateAdjustments({ updates: { contrast: val }, pushHistory: true })}
+										className="w-full"
+									/>
+									<span className="text-muted-foreground w-10 text-center text-xs">{contrastVal}%</span>
+								</div>
+							</PropertyItemValue>
+						</PropertyItem>
+
+						{/* Saturation */}
+						<PropertyItem direction="column">
+							<PropertyItemLabel>{t("Saturation")}</PropertyItemLabel>
+							<PropertyItemValue>
+								<div className="flex items-center gap-2">
+									<Slider
+										value={[saturationVal]}
+										min={0}
+										max={200}
+										step={1}
+										onValueChange={([val]) => updateAdjustments({ updates: { saturation: val }, pushHistory: false })}
+										onValueCommit={([val]) => updateAdjustments({ updates: { saturation: val }, pushHistory: true })}
+										className="w-full"
+									/>
+									<span className="text-muted-foreground w-10 text-center text-xs">{saturationVal}%</span>
+								</div>
+							</PropertyItemValue>
+						</PropertyItem>
+
+						{/* Blur */}
+						<PropertyItem direction="column">
+							<PropertyItemLabel>{t("Blur")}</PropertyItemLabel>
+							<PropertyItemValue>
+								<div className="flex items-center gap-2">
+									<Slider
+										value={[blurVal]}
+										min={0}
+										max={50}
+										step={1}
+										onValueChange={([val]) => updateAdjustments({ updates: { blur: val }, pushHistory: false })}
+										onValueCommit={([val]) => updateAdjustments({ updates: { blur: val }, pushHistory: true })}
+										className="w-full"
+									/>
+									<span className="text-muted-foreground w-10 text-center text-xs">{blurVal}px</span>
 								</div>
 							</PropertyItemValue>
 						</PropertyItem>

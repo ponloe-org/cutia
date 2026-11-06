@@ -1,7 +1,7 @@
 import type { CanvasRenderer } from "../canvas-renderer";
 import { BaseNode } from "./base-node";
 import { getVisualSourceTime } from "@/lib/timeline/element-utils";
-import type { Transform } from "@/types/timeline";
+import type { Transform, VideoFilterAdjustments } from "@/types/timeline";
 import type { TCanvasSize } from "@/types/project";
 
 const VISUAL_EPSILON = 1 / 1000;
@@ -16,6 +16,7 @@ export interface VisualNodeParams {
 	fitCanvasSize?: TCanvasSize;
 	playbackRate?: number;
 	reversed?: boolean;
+	adjustments?: VideoFilterAdjustments;
 }
 
 export abstract class VisualNode<
@@ -54,7 +55,32 @@ export abstract class VisualNode<
 	}): void {
 		renderer.context.save();
 
-		const { transform, opacity, fitCanvasSize } = this.params;
+		const { transform, opacity, fitCanvasSize, adjustments } = this.params;
+
+		if (adjustments) {
+			const filterParts: string[] = [];
+			if (adjustments.brightness !== undefined && adjustments.brightness !== 100) {
+				filterParts.push(`brightness(${adjustments.brightness}%)`);
+			}
+			if (adjustments.contrast !== undefined && adjustments.contrast !== 100) {
+				filterParts.push(`contrast(${adjustments.contrast}%)`);
+			}
+			if (adjustments.saturation !== undefined && adjustments.saturation !== 100) {
+				filterParts.push(`saturate(${adjustments.saturation}%)`);
+			}
+			if (adjustments.blur !== undefined && adjustments.blur > 0) {
+				filterParts.push(`blur(${adjustments.blur}px)`);
+			}
+			if (adjustments.sepia !== undefined && adjustments.sepia > 0) {
+				filterParts.push(`sepia(${adjustments.sepia}%)`);
+			}
+			if (adjustments.grayscale !== undefined && adjustments.grayscale > 0) {
+				filterParts.push(`grayscale(${adjustments.grayscale}%)`);
+			}
+			if (filterParts.length > 0) {
+				renderer.context.filter = filterParts.join(" ");
+			}
+		}
 		const containScale = Math.min(
 			(fitCanvasSize?.width ?? renderer.width) / sourceWidth,
 			(fitCanvasSize?.height ?? renderer.height) / sourceHeight,

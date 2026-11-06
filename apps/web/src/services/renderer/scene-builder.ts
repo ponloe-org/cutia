@@ -57,6 +57,7 @@ function buildVisualElementNode({
 			fitCanvasSize,
 			playbackRate: videoElement.playbackRate,
 			reversed: videoElement.reversed,
+			adjustments: videoElement.adjustments,
 		});
 	}
 
@@ -70,6 +71,7 @@ function buildVisualElementNode({
 			transform: element.transform,
 			opacity: element.opacity,
 			fitCanvasSize,
+			adjustments: (element as any).adjustments,
 		});
 	}
 

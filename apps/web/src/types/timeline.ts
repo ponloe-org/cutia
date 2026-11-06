@@ -55,6 +55,15 @@ export interface Transform {
 	flipY?: boolean;
 }
 
+export interface VideoFilterAdjustments {
+	brightness?: number; // default 100 (%)
+	contrast?: number; // default 100 (%)
+	saturation?: number; // default 100 (%)
+	blur?: number; // default 0 (px)
+	sepia?: number; // default 0 (%)
+	grayscale?: number; // default 0 (%)
+}
+
 // ---- Transitions ----
 
 export type TransitionType =
@@ -121,6 +130,7 @@ export interface VideoElement extends BaseTimelineElement {
 	reversed?: boolean;
 	fadeIn?: number;
 	fadeOut?: number;
+	adjustments?: VideoFilterAdjustments;
 }
 
 export interface ImageElement extends BaseTimelineElement {
@@ -129,6 +139,7 @@ export interface ImageElement extends BaseTimelineElement {
 	hidden?: boolean;
 	transform: Transform;
 	opacity: number;
+	adjustments?: VideoFilterAdjustments;
 }
 
 export interface TextStroke {
