@@ -32,6 +32,7 @@ import {
 	AlignLeftIcon,
 	AlignRightIcon,
 	CursorPointer01Icon,
+	MaximizeIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useElementSelection } from "@/hooks/timeline/element/use-element-selection";
@@ -253,6 +254,15 @@ function ToolbarRightSection({
 					onClick={() => onZoom({ direction: "in" })}
 				>
 					<HugeiconsIcon icon={SearchAddIcon} />
+				</Button>
+				<Button
+					variant="text"
+					size="icon"
+					type="button"
+					title={t("Zoom to fit timeline")}
+					onClick={() => onZoomChange(minZoom)}
+				>
+					<HugeiconsIcon icon={MaximizeIcon} className="size-4" />
 				</Button>
 			</div>
 		</div>
