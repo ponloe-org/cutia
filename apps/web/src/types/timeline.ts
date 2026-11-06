@@ -85,6 +85,8 @@ interface BaseAudioElement extends BaseTimelineElement {
 	muted?: boolean;
 	buffer?: AudioBuffer;
 	playbackRate?: number;
+	fadeIn?: number;
+	fadeOut?: number;
 }
 
 export interface UploadAudioElement extends BaseAudioElement {
@@ -117,6 +119,8 @@ export interface VideoElement extends BaseTimelineElement {
 	opacity: number;
 	playbackRate?: number;
 	reversed?: boolean;
+	fadeIn?: number;
+	fadeOut?: number;
 }
 
 export interface ImageElement extends BaseTimelineElement {

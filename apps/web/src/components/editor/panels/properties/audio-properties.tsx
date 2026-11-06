@@ -42,6 +42,8 @@ export function AudioProperties({
 		: volumePercent.toString();
 
 	const currentSpeed = element.playbackRate ?? 1;
+	const currentFadeIn = element.fadeIn ?? 0;
+	const currentFadeOut = element.fadeOut ?? 0;
 	const speedDisplay = isEditingSpeed.current
 		? speedDraft.current
 		: formatSpeedLabel({ rate: currentSpeed });
@@ -166,7 +168,59 @@ export function AudioProperties({
 					</div>
 				</PropertyGroup>
 
-<PropertyGroup title={t("Speed")} collapsible={false}>
+				<PropertyGroup title={t("Fade In / Out")} collapsible={false}>
+					<div className="space-y-6">
+						<PropertyItem direction="column">
+							<PropertyItemLabel>{t("Fade In (seconds)")}</PropertyItemLabel>
+							<PropertyItemValue>
+								<div className="flex items-center gap-2">
+									<Slider
+										value={[currentFadeIn]}
+										min={0}
+										max={Math.min(10, element.duration / 2)}
+										step={0.1}
+										onValueChange={([val]) => {
+											updateElement({ updates: { fadeIn: val }, pushHistory: false });
+										}}
+										onValueCommit={([val]) => {
+											updateElement({ updates: { fadeIn: val }, pushHistory: true });
+										}}
+										className="w-full"
+									/>
+									<span className="text-muted-foreground w-12 text-center text-xs">
+										{currentFadeIn.toFixed(1)}s
+									</span>
+								</div>
+							</PropertyItemValue>
+						</PropertyItem>
+
+						<PropertyItem direction="column">
+							<PropertyItemLabel>{t("Fade Out (seconds)")}</PropertyItemLabel>
+							<PropertyItemValue>
+								<div className="flex items-center gap-2">
+									<Slider
+										value={[currentFadeOut]}
+										min={0}
+										max={Math.min(10, element.duration / 2)}
+										step={0.1}
+										onValueChange={([val]) => {
+											updateElement({ updates: { fadeOut: val }, pushHistory: false });
+										}}
+										onValueCommit={([val]) => {
+											updateElement({ updates: { fadeOut: val }, pushHistory: true });
+										}}
+										className="w-full"
+									/>
+									<span className="text-muted-foreground w-12 text-center text-xs">
+										{currentFadeOut.toFixed(1)}s
+									</span>
+								</div>
+							</PropertyItemValue>
+						</PropertyItem>
+					</div>
+				</PropertyGroup>
+
+				<PropertyGroup title={t("Speed")} collapsible={false}>
 							<div className="space-y-6">
 								<PropertyItem direction="column">
 									<PropertyItemLabel>{t("Playback Speed")}</PropertyItemLabel>

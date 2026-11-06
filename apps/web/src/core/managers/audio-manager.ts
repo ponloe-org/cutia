@@ -208,7 +208,37 @@ export class AudioManager {
 		node.playbackRate.value = rate;
 
 		const clipGain = audioContext.createGain();
-		clipGain.gain.value = clip.volume;
+		const baseVolume = clip.volume;
+
+		// Audio fade in and fade out envelope
+		const fadeIn = clip.fadeIn ?? 0;
+		const fadeOut = clip.fadeOut ?? 0;
+		const clipStartContextTime = scheduleTime;
+		const clipEndContextTime = scheduleTime + remainingDuration;
+
+		if (fadeIn > 0 || fadeOut > 0) {
+			clipGain.gain.setValueAtTime(
+				fadeIn > 0 && elapsed < fadeIn ? (elapsed / fadeIn) * baseVolume : baseVolume,
+				Math.max(audioContext.currentTime, clipStartContextTime),
+			);
+
+			if (fadeIn > 0 && elapsed < fadeIn) {
+				const fadeInEndContextTime = clipStartContextTime + (fadeIn - elapsed);
+				clipGain.gain.linearRampToValueAtTime(baseVolume, fadeInEndContextTime);
+			}
+
+			if (fadeOut > 0) {
+				const fadeOutStartContextTime = Math.max(
+					clipStartContextTime,
+					clipEndContextTime - fadeOut,
+				);
+				clipGain.gain.setValueAtTime(baseVolume, fadeOutStartContextTime);
+				clipGain.gain.linearRampToValueAtTime(0, clipEndContextTime);
+			}
+		} else {
+			clipGain.gain.value = baseVolume;
+		}
+
 		node.connect(clipGain);
 		clipGain.connect(this.masterGain);
 
