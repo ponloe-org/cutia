@@ -6,7 +6,11 @@
 import { create } from "zustand";
 import type { ClipboardItem } from "@/types/timeline";
 
+export type TimelineActiveTool = "select" | "blade";
+
 interface TimelineStore {
+	activeTool: TimelineActiveTool;
+	setActiveTool: (tool: TimelineActiveTool) => void;
 	snappingEnabled: boolean;
 	toggleSnapping: () => void;
 	rippleEditingEnabled: boolean;
@@ -22,6 +26,9 @@ interface TimelineStore {
 }
 
 export const useTimelineStore = create<TimelineStore>((set) => ({
+	activeTool: "select",
+	setActiveTool: (activeTool) => set({ activeTool }),
+
 	snappingEnabled: true,
 
 	toggleSnapping: () => {

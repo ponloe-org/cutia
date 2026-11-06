@@ -184,10 +184,12 @@ export function useEditorActions() {
 
 			if (elementsToSplit.length === 0) return;
 
+			const isRipple = useTimelineStore.getState().rippleEditingEnabled;
 			editor.timeline.splitElements({
 				elements: elementsToSplit,
 				splitTime: currentTime,
 				retainSide: "right",
+				ripple: isRipple,
 			});
 		},
 		undefined,
@@ -207,11 +209,22 @@ export function useEditorActions() {
 
 			if (elementsToSplit.length === 0) return;
 
+			const isRipple = useTimelineStore.getState().rippleEditingEnabled;
 			editor.timeline.splitElements({
 				elements: elementsToSplit,
 				splitTime: currentTime,
 				retainSide: "left",
+				ripple: isRipple,
 			});
+		},
+		undefined,
+	);
+
+	useActionHandler(
+		"delete-all-gaps",
+		() => {
+			editor.timeline.deleteAllGaps();
+			toast.success(i18next.t("All gaps removed"));
 		},
 		undefined,
 	);
@@ -222,8 +235,10 @@ export function useEditorActions() {
 			if (selectedElements.length === 0) {
 				return;
 			}
+			const isRipple = useTimelineStore.getState().rippleEditingEnabled;
 			editor.timeline.deleteElements({
 				elements: selectedElements,
+				ripple: isRipple,
 			});
 			editor.selection.clearSelection();
 		},
@@ -562,6 +577,23 @@ export function useEditorActions() {
 				time: editor.playback.getCurrentTime(),
 				clipboardItems: clipboard.items,
 			});
+		},
+		undefined,
+	);
+
+	useActionHandler(
+		"select-tool",
+		() => {
+			useTimelineStore.getState().setActiveTool("select");
+		},
+		undefined,
+	);
+
+	useActionHandler(
+		"blade-tool",
+		() => {
+			const current = useTimelineStore.getState().activeTool;
+			useTimelineStore.getState().setActiveTool(current === "blade" ? "select" : "blade");
 		},
 		undefined,
 	);

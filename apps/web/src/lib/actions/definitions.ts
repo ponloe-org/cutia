@@ -90,6 +90,20 @@ export const ACTIONS = {
 		category: "editing",
 		defaultShortcuts: ["backspace", "delete"],
 	},
+	"delete-all-gaps": {
+		description: "Delete all gaps between clips",
+		category: "editing",
+	},
+	"select-tool": {
+		description: "Switch to select tool",
+		category: "editing",
+		defaultShortcuts: ["v"],
+	},
+	"blade-tool": {
+		description: "Switch to blade / razor tool",
+		category: "editing",
+		defaultShortcuts: ["b"],
+	},
 	"copy-selected": {
 		description: "Copy selected elements",
 		category: "editing",

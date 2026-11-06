@@ -27,6 +27,7 @@ import {
 	UpdateElementTrimCommand,
 	UpdateElementDurationCommand,
 	DeleteElementsCommand,
+	DeleteAllGapsCommand,
 	DuplicateElementsCommand,
 	ToggleElementsVisibilityCommand,
 	ToggleElementsMutedCommand,
@@ -167,12 +168,14 @@ export class TimelineManager {
 		elements,
 		splitTime,
 		retainSide = "both",
+		ripple = false,
 	}: {
 		elements: { trackId: string; elementId: string }[];
 		splitTime: number;
 		retainSide?: "both" | "left" | "right";
+		ripple?: boolean;
 	}): { trackId: string; elementId: string }[] {
-		const command = new SplitElementsCommand(elements, splitTime, retainSide);
+		const command = new SplitElementsCommand(elements, splitTime, retainSide, ripple);
 		this.editor.command.execute({ command });
 		return command.getRightSideElements();
 	}
@@ -221,10 +224,17 @@ export class TimelineManager {
 
 	deleteElements({
 		elements,
+		ripple = false,
 	}: {
 		elements: { trackId: string; elementId: string }[];
+		ripple?: boolean;
 	}): void {
-		const command = new DeleteElementsCommand(elements);
+		const command = new DeleteElementsCommand(elements, ripple);
+		this.editor.command.execute({ command });
+	}
+
+	deleteAllGaps(): void {
+		const command = new DeleteAllGapsCommand();
 		this.editor.command.execute({ command });
 	}
 

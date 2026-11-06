@@ -31,6 +31,7 @@ import {
 	Copy01Icon,
 	AlignLeftIcon,
 	AlignRightIcon,
+	CursorPointer01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useElementSelection } from "@/hooks/timeline/element/use-element-selection";
@@ -75,6 +76,7 @@ function ToolbarLeftSection() {
 	const { t } = useTranslation();
 	const editor = useEditor();
 	const { selectedElements } = useElementSelection();
+	const { activeTool, setActiveTool } = useTimelineStore();
 	const currentTime = editor.playback.getCurrentTime();
 	const currentBookmarked = editor.scenes.isBookmarked({ time: currentTime });
 	const [selected] =
@@ -101,6 +103,24 @@ function ToolbarLeftSection() {
 		<div className="flex items-center gap-1">
 			<TooltipProvider delayDuration={500}>
 				<ToolbarButton
+					icon={<HugeiconsIcon icon={CursorPointer01Icon} />}
+					isActive={activeTool === "select"}
+					tooltip={t("Select tool (V)")}
+					onClick={() => setActiveTool("select")}
+				/>
+
+				<ToolbarButton
+					icon={<HugeiconsIcon icon={ScissorIcon} />}
+					isActive={activeTool === "blade"}
+					tooltip={t("Blade / Razor tool (B)")}
+					onClick={() =>
+						setActiveTool(activeTool === "blade" ? "select" : "blade")
+					}
+				/>
+
+				<div className="bg-border mx-1 h-6 w-px" />
+
+				<ToolbarButton
 					icon={<HugeiconsIcon icon={ScissorIcon} />}
 					tooltip={t('Split element')}
 					onClick={({ event }) => handleAction({ action: "split", event })}
@@ -122,9 +142,8 @@ function ToolbarLeftSection() {
 
 				<ToolbarButton
 					icon={<SplitSquareHorizontal />}
-					tooltip={t('Coming soon')}
-					disabled={true}
-					onClick={({ event: _event }) => {}}
+					tooltip={t('Delete all gaps')}
+					onClick={({ event }) => handleAction({ action: "delete-all-gaps", event })}
 				/>
 
 				<ToolbarButton

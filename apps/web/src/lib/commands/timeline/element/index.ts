@@ -1,6 +1,7 @@
 export { BatchMoveElementsCommand } from "./batch-move-elements";
 export { InsertElementCommand } from "./insert-element";
 export { DeleteElementsCommand } from "./delete-elements";
+export { DeleteAllGapsCommand } from "./delete-all-gaps";
 export { DuplicateElementsCommand } from "./duplicate-elements";
 export { UpdateElementTrimCommand } from "./update-element-trim";
 export { UpdateElementDurationCommand } from "./update-element-duration";

@@ -59,6 +59,7 @@ import { useTranslation } from "@i18next-toolkit/nextjs-approuter";
 import type { ComponentProps } from "react";
 import { VideoThumbnailStrip } from "./video-thumbnail-strip";
 import { Download } from "lucide-react";
+import { useTimelineStore } from "@/stores/timeline-store";
 
 function getDisplayShortcut(action: TAction) {
 	const { defaultShortcuts } = getActionDefinition(action);
@@ -101,6 +102,7 @@ export function TimelineElement({
 	const editor = useEditor();
 	const { selectedElements } = useElementSelection();
 	const { requestRevealMedia } = useAssetsPanelStore();
+	const { activeTool } = useTimelineStore();
 
 	const mediaAssets = editor.media.getAssets();
 	let mediaAsset: MediaAsset | null = null;
@@ -159,6 +161,26 @@ export function TimelineElement({
 		}
 	};
 
+	const handleElementBladeClick = (e: React.MouseEvent) => {
+		if (activeTool === "blade") {
+			e.stopPropagation();
+			const rect = e.currentTarget.getBoundingClientRect();
+			const clickX = e.clientX - rect.left;
+			const clickTimeOffset =
+				clickX / (TIMELINE_CONSTANTS.PIXELS_PER_SECOND * zoomLevel);
+			const splitTime = element.startTime + clickTimeOffset;
+
+			if (splitTime > element.startTime && splitTime < element.startTime + element.duration) {
+				editor.timeline.splitElements({
+					elements: [{ trackId: track.id, elementId: element.id }],
+					splitTime,
+				});
+			}
+			return true;
+		}
+		return false;
+	};
+
 	const isMuted = canElementHaveAudio(element) && element.muted === true;
 
 	return (
@@ -180,14 +202,24 @@ export function TimelineElement({
 					<ElementInner
 						element={element}
 						track={track}
+						activeTool={activeTool}
 						zoomLevel={zoomLevel}
 						isSelected={isSelected}
 						isBeingDragged={isBeingDragged}
 						hasAudio={hasAudio}
 						isMuted={isMuted}
 						mediaAssets={mediaAssets}
-						onElementClick={onElementClick}
-						onElementMouseDown={onElementMouseDown}
+						onElementClick={(e, el) => {
+							if (handleElementBladeClick(e)) return;
+							onElementClick(e, el);
+						}}
+						onElementMouseDown={(e, el) => {
+							if (activeTool === "blade") {
+								e.stopPropagation();
+								return;
+							}
+							onElementMouseDown(e, el);
+						}}
 						handleResizeStart={handleResizeStart}
 					/>
 				</div>
@@ -303,6 +335,7 @@ export function TimelineElement({
 function ElementInner({
 	element,
 	track,
+	activeTool,
 	zoomLevel,
 	isSelected,
 	isBeingDragged,
@@ -315,6 +348,7 @@ function ElementInner({
 }: {
 	element: TimelineElementType;
 	track: TimelineTrack;
+	activeTool?: "select" | "blade";
 	zoomLevel: number;
 	isSelected: boolean;
 	isBeingDragged: boolean;
@@ -334,7 +368,9 @@ function ElementInner({
 }) {
 	return (
 		<div
-			className={`relative h-full cursor-pointer overflow-hidden rounded-[0.5rem] ${getTrackClasses(
+			className={`relative h-full overflow-hidden rounded-[0.5rem] ${
+				activeTool === "blade" ? "cursor-crosshair" : "cursor-pointer"
+			} ${getTrackClasses(
 				{
 					type: track.type,
 				},

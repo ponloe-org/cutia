@@ -9,7 +9,10 @@ export class DeleteElementsCommand extends Command {
 	private savedState: TimelineTrack[] | null = null;
 	private removedEphemeralAssets: MediaAsset[] = [];
 
-	constructor(private elements: { trackId: string; elementId: string }[]) {
+	constructor(
+		private elements: { trackId: string; elementId: string }[],
+		private ripple: boolean = false,
+	) {
 		super();
 	}
 
@@ -39,14 +42,40 @@ export class DeleteElementsCommand extends Command {
 					return track;
 				}
 
+				if (!this.ripple) {
+					return {
+						...track,
+						elements: track.elements.filter(
+							(element) =>
+								!this.elements.some(
+									(el) => el.trackId === track.id && el.elementId === element.id,
+								),
+						),
+					} as typeof track;
+				}
+
+				// With ripple enabled: shift remaining elements to the left by deleted duration
+				let trackShift = 0;
+				const remainingElements: any[] = [];
+
+				for (const element of track.elements) {
+					const isDeleted = this.elements.some(
+						(el) => el.trackId === track.id && el.elementId === element.id,
+					);
+
+					if (isDeleted) {
+						trackShift += element.duration;
+					} else {
+						remainingElements.push({
+							...element,
+							startTime: Math.max(0, element.startTime - trackShift),
+						} as typeof element);
+					}
+				}
+
 				return {
 					...track,
-					elements: track.elements.filter(
-						(element) =>
-							!this.elements.some(
-								(el) => el.trackId === track.id && el.elementId === element.id,
-							),
-					),
+					elements: remainingElements,
 				} as typeof track;
 			})
 			.filter((track) => track.elements.length > 0 || isMainTrack(track));
