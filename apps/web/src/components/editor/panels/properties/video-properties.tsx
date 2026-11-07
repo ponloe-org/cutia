@@ -447,6 +447,27 @@ export function VideoProperties({
 				{/* Color & Filter Adjustments (CapCut style) */}
 				<PropertyGroup title={t("Color Adjustments")} collapsible={false}>
 					<div className="space-y-4">
+						<div className="flex justify-end">
+							<button
+								type="button"
+								className="text-muted-foreground hover:text-foreground text-xs underline"
+								onClick={() =>
+									updateAdjustments({
+										updates: {
+											brightness: 100,
+											contrast: 100,
+											saturation: 100,
+											blur: 0,
+											sepia: 0,
+											grayscale: 0,
+										},
+										pushHistory: true,
+									})
+								}
+							>
+								{t("Reset all")}
+							</button>
+						</div>
 						{/* Brightness */}
 						<PropertyItem direction="column">
 							<PropertyItemLabel>{t("Brightness")}</PropertyItemLabel>
