@@ -357,6 +357,37 @@ export function VideoProperties({
 							</PropertyItemValue>
 						</PropertyItem>
 
+						{/* Corner Radius */}
+						<PropertyItem direction="column">
+							<PropertyItemLabel>{t("Corner Radius")}</PropertyItemLabel>
+							<PropertyItemValue>
+								<div className="flex items-center gap-2">
+									<Slider
+										value={[element.transform.borderRadius ?? 0]}
+										min={0}
+										max={100}
+										step={1}
+										onValueChange={([value]) => {
+											updateTransform({
+												updates: { borderRadius: value },
+												pushHistory: false,
+											});
+										}}
+										onValueCommit={([value]) => {
+											updateTransform({
+												updates: { borderRadius: value },
+												pushHistory: true,
+											});
+										}}
+										className="w-full"
+									/>
+									<span className="text-muted-foreground w-10 text-center text-xs">
+										{element.transform.borderRadius ?? 0}px
+									</span>
+								</div>
+							</PropertyItemValue>
+						</PropertyItem>
+
 						{/* Rotation */}
 						<PropertyItem direction="column">
 							<PropertyItemLabel>{t("Rotation")}</PropertyItemLabel>

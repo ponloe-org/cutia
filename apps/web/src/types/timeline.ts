@@ -53,6 +53,7 @@ export interface Transform {
 	rotate: number;
 	flipX?: boolean;
 	flipY?: boolean;
+	borderRadius?: number; // rounded corners for visual clips
 }
 
 export interface VideoFilterAdjustments {

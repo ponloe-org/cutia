@@ -112,6 +112,12 @@ export abstract class VisualNode<
 			renderer.context.translate(-centerX, -centerY);
 		}
 
+		if (transform.borderRadius && transform.borderRadius > 0 && renderer.context.roundRect) {
+			renderer.context.beginPath();
+			renderer.context.roundRect(x, y, scaledWidth, scaledHeight, transform.borderRadius);
+			renderer.context.clip();
+		}
+
 		renderer.context.drawImage(source, x, y, scaledWidth, scaledHeight);
 		renderer.context.restore();
 	}
