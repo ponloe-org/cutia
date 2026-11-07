@@ -12,7 +12,7 @@ import { mediaSupportsAudio } from "@/lib/media/media-utils";
 export type CollectedAudioElement = Omit<
 	AudioElement,
 	"type" | "mediaId" | "id" | "name" | "sourceType" | "sourceUrl"
-> & { buffer: AudioBuffer; reversed?: boolean };
+> & { buffer: AudioBuffer; reversed?: boolean; fadeIn?: number; fadeOut?: number };
 
 export function createAudioContext(): AudioContext {
 	const AudioContextConstructor =
@@ -112,6 +112,8 @@ export async function collectAudioElements({
 						volume,
 						muted,
 						playbackRate: element.playbackRate ?? 1,
+						fadeIn: element.fadeIn,
+						fadeOut: element.fadeOut,
 					};
 				}),
 			);
@@ -138,6 +140,8 @@ export async function collectAudioElements({
 						muted,
 						playbackRate: element.playbackRate ?? 1,
 						reversed: element.reversed ?? false,
+						fadeIn: element.fadeIn,
+						fadeOut: element.fadeOut,
 					};
 				}),
 			);
@@ -582,7 +586,19 @@ function mixAudioChannels({
 					: sample0;
 			const interpolated = sample0 + fraction * (sample1 - sample0);
 
-			outputData[outputIndex] += interpolated * volume;
+			// Calculate fade in and fade out envelope gain
+			const elapsedSec = i / sampleRate;
+			const remainingSec = elementDuration - elapsedSec;
+			let envelopeGain = 1;
+
+			if (element.fadeIn && element.fadeIn > 0 && elapsedSec < element.fadeIn) {
+				envelopeGain = Math.min(envelopeGain, elapsedSec / element.fadeIn);
+			}
+			if (element.fadeOut && element.fadeOut > 0 && remainingSec < element.fadeOut) {
+				envelopeGain = Math.min(envelopeGain, Math.max(0, remainingSec / element.fadeOut));
+			}
+
+			outputData[outputIndex] += interpolated * volume * envelopeGain;
 		}
 	}
 }
