@@ -9,10 +9,13 @@ export interface TransitionPreset {
 export const TRANSITION_PRESETS: TransitionPreset[] = [
 	{ type: "fade", label: "Fade", category: "fade" },
 	{ type: "dissolve", label: "Dissolve", category: "fade" },
+	{ type: "flash-white", label: "Flash White", category: "fade" },
+	{ type: "flash-black", label: "Flash Black", category: "fade" },
 	{ type: "wipe-left", label: "Wipe Left", category: "wipe" },
 	{ type: "wipe-right", label: "Wipe Right", category: "wipe" },
 	{ type: "wipe-up", label: "Wipe Up", category: "wipe" },
 	{ type: "wipe-down", label: "Wipe Down", category: "wipe" },
+	{ type: "circle-crop", label: "Circle Open", category: "wipe" },
 	{ type: "slide-left", label: "Slide Left", category: "slide" },
 	{ type: "slide-right", label: "Slide Right", category: "slide" },
 	{ type: "slide-up", label: "Slide Up", category: "slide" },

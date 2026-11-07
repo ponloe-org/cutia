@@ -152,6 +152,15 @@ function applyTransition({
 		case "dissolve":
 			applyDissolve({ context, ...source, width, height, progress });
 			break;
+		case "flash-white":
+			applyFlash({ context, ...source, width, height, progress, color: "#ffffff" });
+			break;
+		case "flash-black":
+			applyFlash({ context, ...source, width, height, progress, color: "#000000" });
+			break;
+		case "circle-crop":
+			applyCircleCrop({ context, ...source, width, height, progress });
+			break;
 		case "wipe-left":
 			applyWipe({ context, ...source, width, height, progress, direction: "left" });
 			break;
@@ -297,6 +306,55 @@ function applySlide({
 			context.drawImage(canvasB as CanvasImageSource, offsetX, -height + offsetY, width, height);
 			break;
 	}
+
+	context.restore();
+}
+
+function applyFlash({
+	context,
+	canvasA,
+	canvasB,
+	width,
+	height,
+	progress,
+	color,
+}: TransitionContext & { color: string }): void {
+	context.save();
+	if (progress < 0.5) {
+		const alpha = progress * 2;
+		context.drawImage(canvasA as CanvasImageSource, 0, 0, width, height);
+		context.fillStyle = color;
+		context.globalAlpha = alpha;
+		context.fillRect(0, 0, width, height);
+	} else {
+		const alpha = (1 - progress) * 2;
+		context.drawImage(canvasB as CanvasImageSource, 0, 0, width, height);
+		context.fillStyle = color;
+		context.globalAlpha = alpha;
+		context.fillRect(0, 0, width, height);
+	}
+	context.restore();
+}
+
+function applyCircleCrop({
+	context,
+	canvasA,
+	canvasB,
+	width,
+	height,
+	progress,
+}: TransitionContext): void {
+	context.save();
+	context.drawImage(canvasA as CanvasImageSource, 0, 0, width, height);
+
+	context.save();
+	context.beginPath();
+	const maxRadius = Math.hypot(width / 2, height / 2);
+	const currentRadius = maxRadius * progress;
+	context.arc(width / 2, height / 2, currentRadius, 0, Math.PI * 2);
+	context.clip();
+	context.drawImage(canvasB as CanvasImageSource, 0, 0, width, height);
+	context.restore();
 
 	context.restore();
 }
